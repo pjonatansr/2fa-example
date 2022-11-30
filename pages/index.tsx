@@ -1,9 +1,12 @@
 import Head from 'next/head'
-import { useEffect, useRef, useState } from 'react'
+import { BaseSyntheticEvent, KeyboardEventHandler, SyntheticEvent, useEffect, useRef, useState } from 'react'
 import styles from '../styles/Home.module.css'
 
 export default function Home() {
-  const inputs = Array.from(Array(6).keys())
+  const TEXT_FORMAT = 'text';
+  const MAX_INPUTS = 6;
+
+  const inputs = Array.from(Array(MAX_INPUTS).keys())
   const [values, setValues] = useState(inputs.map(() => ''))
   const inputElement = useRef(null);
 
@@ -13,7 +16,28 @@ export default function Home() {
     }
   }, []);
 
-  const onKeyPress = (e: any) => {
+  const isCopyPaste = (e: React.KeyboardEvent<HTMLInputElement>) => e.key == 'v' && e.ctrlKey;
+
+  const onPasteData = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const pastedContent = e.clipboardData.getData(TEXT_FORMAT);
+
+    // Only allow pasting if whole content is numeric
+    if (!/^\d+$/.test(pastedContent)) {
+      console.log("Invalid content")
+      return;
+    }
+
+    const splitedContent = pastedContent.split('');
+    // Only allow pasting if six numbers is present 
+    if (splitedContent.length != MAX_INPUTS) {
+      console.log("Invalid content")
+      return;
+    }
+    
+    setValues(splitedContent);
+  }
+
+  const onKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     const allowedKeys = [
       ...Array.from(Array(10).keys()).map((i) => i.toString()),
       'Backspace',
@@ -24,13 +48,15 @@ export default function Home() {
       'ArrowRight',
     ]
 
+    if (isCopyPaste(e)) return;
+
     if (!allowedKeys.includes(e.key)) {
       e.preventDefault()
       return;
     }
 
-    const { key, target } = e
-    const { name } = target
+    const { key } = e
+    const { name } = e.target as HTMLInputElement;
     const index = parseInt(name)
 
     const getUpdatedValues = (key: string, index: number) =>
@@ -88,6 +114,7 @@ export default function Home() {
                 type="text"
                 maxLength={1}
                 onKeyDown={onKeyPress}
+                onPaste={onPasteData}
                 name={index.toString()}
                 className={values[index] === '' ? styles.invalid : ''}
                 value={values[index]}
