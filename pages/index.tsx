@@ -4,7 +4,9 @@ import styles from '../styles/Home.module.css'
 
 export default function Home() {
   const TEXT_FORMAT = 'text';
-  const inputs = Array.from(Array(6).keys())
+  const MAX_INPUTS = 6;
+
+  const inputs = Array.from(Array(MAX_INPUTS).keys())
   const [values, setValues] = useState(inputs.map(() => ''))
   const inputElement = useRef(null);
 
@@ -21,11 +23,17 @@ export default function Home() {
 
     // Only allow pasting if whole content is numeric
     if (!/^\d+$/.test(pastedContent)) {
-      console.log("Not pastable!");
+      console.log("Invalid content")
+      return;
+    }
+
+    const splitedContent = pastedContent.split('');
+    // Only allow pasting if six numbers is present 
+    if (splitedContent.length != MAX_INPUTS) {
+      console.log("Invalid content")
       return;
     }
     
-    const splitedContent = pastedContent.split('');
     setValues(splitedContent);
   }
 
