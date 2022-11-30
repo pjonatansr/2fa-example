@@ -17,12 +17,15 @@ export default function Home() {
   const isCopyPaste = (e: React.KeyboardEvent<HTMLInputElement>) => e.key == 'v' && e.ctrlKey;
 
   const onPasteData = (e: React.ClipboardEvent<HTMLInputElement>) => {
-    let pastedContent = e.clipboardData.getData(TEXT_FORMAT);
+    const pastedContent = e.clipboardData.getData(TEXT_FORMAT);
 
     // Only allow pasting if whole content is numeric
-    if (!/^\d+$/.test(pastedContent)) console.log("Not pastable!");
-    let splitedContent = pastedContent.split('');
+    if (!/^\d+$/.test(pastedContent)) {
+      console.log("Not pastable!");
+      return;
+    }
     
+    const splitedContent = pastedContent.split('');
     setValues(splitedContent);
   }
 
